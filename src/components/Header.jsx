@@ -1,14 +1,29 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, Leaf } from 'lucide-react'
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20)
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   return (
-    <header style={styles.header}>
+    <header style={{
+      ...styles.header,
+      background: scrolled ? 'rgba(46, 125, 50, 0.98)' : 'linear-gradient(135deg, rgba(46, 125, 50, 0.95) 0%, rgba(102, 187, 106, 0.95) 100%)',
+      backdropFilter: scrolled ? 'blur(10px)' : 'none',
+      boxShadow: scrolled ? '0 4px 20px rgba(0,0,0,0.15)' : '0 2px 10px rgba(0,0,0,0.1)',
+    }}>
       <div style={styles.container}>
         <Link to="/" style={styles.logo}>
+          <Leaf size={28} style={{ marginRight: '0.5rem' }} />
           <span style={styles.logoText}>AyuTrace</span>
         </Link>
         
@@ -17,10 +32,18 @@ const Header = () => {
         </button>
 
         <nav style={{...styles.nav, ...(isOpen ? styles.navOpen : {})}}>
-          <Link to="/" style={styles.navLink} onClick={() => setIsOpen(false)}>Home</Link>
-          <a href="/#stakeholders" style={styles.navLink} onClick={() => setIsOpen(false)}>Stakeholders</a>
-          <Link to="/about" style={styles.navLink} onClick={() => setIsOpen(false)}>About Us</Link>
-          <Link to="/contact" style={styles.navLink} onClick={() => setIsOpen(false)}>Contact</Link>
+          <Link to="/" style={styles.navLink} onClick={() => setIsOpen(false)}>
+            <span style={styles.navLinkText}>Home</span>
+          </Link>
+          <a href="/#stakeholders" style={styles.navLink} onClick={() => setIsOpen(false)}>
+            <span style={styles.navLinkText}>Stakeholders</span>
+          </a>
+          <Link to="/about" style={styles.navLink} onClick={() => setIsOpen(false)}>
+            <span style={styles.navLinkText}>About</span>
+          </Link>
+          <Link to="/contact" style={styles.navLink} onClick={() => setIsOpen(false)}>
+            <span style={styles.navLinkText}>Contact</span>
+          </Link>
         </nav>
       </div>
     </header>
@@ -29,18 +52,17 @@ const Header = () => {
 
 const styles = {
   header: {
-    background: 'linear-gradient(135deg, #2e7d32 0%, #66bb6a 100%)',
     color: 'white',
-    padding: '1rem 0',
-    boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+    padding: '1.2rem 0',
     position: 'sticky',
     top: 0,
     zIndex: 1000,
+    transition: 'all 0.3s ease',
   },
   container: {
     maxWidth: '1200px',
     margin: '0 auto',
-    padding: '0 1rem',
+    padding: '0 2rem',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -48,11 +70,14 @@ const styles = {
   logo: {
     textDecoration: 'none',
     color: 'white',
+    display: 'flex',
+    alignItems: 'center',
+    transition: 'transform 0.3s ease',
   },
   logoText: {
     fontSize: '1.8rem',
-    fontWeight: 'bold',
-    letterSpacing: '1px',
+    fontWeight: '700',
+    letterSpacing: '0.5px',
   },
   menuButton: {
     display: 'none',
@@ -64,7 +89,8 @@ const styles = {
   },
   nav: {
     display: 'flex',
-    gap: '2rem',
+    gap: '2.5rem',
+    alignItems: 'center',
   },
   navOpen: {
     display: 'flex',
@@ -74,7 +100,12 @@ const styles = {
     textDecoration: 'none',
     fontSize: '1rem',
     fontWeight: '500',
-    transition: 'opacity 0.3s',
+    position: 'relative',
+    padding: '0.5rem 0',
+  },
+  navLinkText: {
+    position: 'relative',
+    zIndex: 1,
   },
 }
 
