@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate AyuTrace Icons</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        canvas {
+            border: 2px solid #ccc;
+            margin: 20px;
+        }
+        button {
+            background: #2e7d32;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover {
+            background: #1b5e20;
+        }
+        .icon-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>AyuTrace Icon Generator</h1>
+    <p>Click the buttons below to download app icons</p>
+    
+    <div class="icon-container">
+        <div>
+            <canvas id="icon192" width="192" height="192"></canvas>
+            <br>
+            <button onclick="downloadIcon(192)">Download 192x192</button>
+        </div>
+        <div>
+            <canvas id="icon512" width="512" height="512"></canvas>
+            <br>
+            <button onclick="downloadIcon(512)">Download 512x512</button>
+        </div>
+    </div>
+
+    <script>
+        function drawIcon(canvas, size) {
+            const ctx = canvas.getContext('2d');
+            const scale = size / 512;
+            
+            // Background with rounded corners
+            ctx.fillStyle = '#2e7d32';
+            ctx.beginPath();
+            ctx.roundRect(0, 0, size, size, size * 0.15);
+            ctx.fill();
+            
+            // Center point
+            const cx = size / 2;
+            const cy = size / 2;
+            
+            // Draw leaf
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.scale(scale, scale);
+            
+            // Main leaf shape
+            ctx.fillStyle = '#66bb6a';
+            ctx.strokeStyle = '#1b5e20';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(-80, 40);
+            ctx.quadraticCurveTo(-80, -100, 0, -120);
+            ctx.quadraticCurveTo(80, -100, 80, 40);
+            ctx.quadraticCurveTo(0, 80, -80, 40);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            
+            // Leaf vein
+            ctx.strokeStyle = '#1b5e20';
+            ctx.lineWidth = 6;
+            ctx.beginPath();
+            ctx.moveTo(0, -120);
+            ctx.lineTo(0, 60);
+            ctx.stroke();
+            
+            // Side veins
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(0, -60);
+            ctx.lineTo(-40, -20);
+            ctx.moveTo(0, -60);
+            ctx.lineTo(40, -20);
+            ctx.moveTo(0, -20);
+            ctx.lineTo(-50, 10);
+            ctx.moveTo(0, -20);
+            ctx.lineTo(50, 10);
+            ctx.stroke();
+            
+            // Blockchain links
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 6;
+            ctx.beginPath();
+            ctx.arc(-60, 80, 25, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(60, 80, 25, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(-35, 80);
+            ctx.lineTo(35, 80);
+            ctx.stroke();
+            
+            ctx.restore();
+            
+            // Text
+            ctx.fillStyle = '#fff';
+            ctx.font = `bold ${size * 0.12}px Arial, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('AyuTrace', cx, size * 0.86);
+        }
+        
+        // Draw icons on page load
+        drawIcon(document.getElementById('icon192'), 192);
+        drawIcon(document.getElementById('icon512'), 512);
+        
+        function downloadIcon(size) {
+            const canvas = document.getElementById(`icon${size}`);
+            const link = document.createElement('a');
+            link.download = `icon-${size}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+    </script>
+</body>
+</html>

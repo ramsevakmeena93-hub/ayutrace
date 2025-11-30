@@ -1,0 +1,29 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="512" height="512" fill="#2e7d32" rx="80"/>
+  
+  <!-- Leaf design -->
+  <g transform="translate(256, 256)">
+    <!-- Main leaf -->
+    <path d="M -80 40 Q -80 -100, 0 -120 Q 80 -100, 80 40 Q 0 80, -80 40 Z" 
+          fill="#66bb6a" stroke="#1b5e20" stroke-width="4"/>
+    
+    <!-- Leaf vein -->
+    <line x1="0" y1="-120" x2="0" y2="60" stroke="#1b5e20" stroke-width="6"/>
+    
+    <!-- Side veins -->
+    <line x1="0" y1="-60" x2="-40" y2="-20" stroke="#1b5e20" stroke-width="3"/>
+    <line x1="0" y1="-60" x2="40" y2="-20" stroke="#1b5e20" stroke-width="3"/>
+    <line x1="0" y1="-20" x2="-50" y2="10" stroke="#1b5e20" stroke-width="3"/>
+    <line x1="0" y1="-20" x2="50" y2="10" stroke="#1b5e20" stroke-width="3"/>
+    
+    <!-- Blockchain link symbol -->
+    <circle cx="-60" cy="80" r="25" fill="none" stroke="#fff" stroke-width="6"/>
+    <circle cx="60" cy="80" r="25" fill="none" stroke="#fff" stroke-width="6"/>
+    <line x1="-35" y1="80" x2="35" y2="80" stroke="#fff" stroke-width="6"/>
+  </g>
+  
+  <!-- Text -->
+  <text x="256" y="440" font-family="Arial, sans-serif" font-size="60" font-weight="bold" 
+        fill="#fff" text-anchor="middle">AyuTrace</text>
+</svg>
