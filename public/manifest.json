@@ -1,18 +1,33 @@
 {
-  "name": "AyuTrace - Blockchain Traceability",
+  "name": "AyuTrace - Blockchain Traceability for Ayurvedic Herbs",
   "short_name": "AyuTrace",
-  "description": "Blockchain-Powered Traceability for Ayurvedic Herbs",
+  "description": "Blockchain-Powered Traceability for Ayurvedic Herbs. Track herbs from farm to consumer.",
   "start_url": "/ayutrace/",
+  "scope": "/ayutrace/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#2e7d32",
-  "orientation": "portrait",
+  "orientation": "any",
+  "categories": ["health", "business", "productivity"],
   "icons": [
     {
       "src": "/ayutrace/icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/ayutrace/icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/ayutrace/icon.svg",
+      "sizes": "540x720",
+      "type": "image/svg+xml"
     }
   ]
 }
