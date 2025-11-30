@@ -11,7 +11,17 @@ const Contact = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    alert('Thank you for contacting us! We will get back to you soon.')
+    
+    // Create WhatsApp message
+    const whatsappMessage = `*New Query from AyuTrace*%0A%0A*Name:* ${formData.name}%0A*Email:* ${formData.email}%0A*Mobile:* ${formData.mobile}%0A*Message:* ${formData.message}`
+    
+    // WhatsApp API URL
+    const whatsappURL = `https://wa.me/919303386187?text=${whatsappMessage}`
+    
+    // Open WhatsApp
+    window.open(whatsappURL, '_blank')
+    
+    // Reset form
     setFormData({ name: '', email: '', mobile: '', message: '' })
   }
 
@@ -34,8 +44,10 @@ const Contact = () => {
               <div style={styles.contactItem}>
                 <Phone size={24} color="#2e7d32" />
                 <div>
-                  <h4 style={styles.contactLabel}>Phone</h4>
-                  <p style={styles.contactValue}>+91-XXXXXXXXXX</p>
+                  <h4 style={styles.contactLabel}>Phone / WhatsApp</h4>
+                  <a href="https://wa.me/919303386187" target="_blank" rel="noopener noreferrer" style={{...styles.contactValue, color: '#2e7d32', textDecoration: 'none', fontWeight: '600'}}>
+                    +91-9303386187
+                  </a>
                 </div>
               </div>
 
@@ -108,7 +120,7 @@ const Contact = () => {
 
               <button type="submit" style={styles.submitBtn}>
                 <Send size={20} />
-                Send Message
+                Send via WhatsApp
               </button>
             </form>
           </div>

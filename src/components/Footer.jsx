@@ -23,7 +23,7 @@ const Footer = () => {
             <div style={styles.contactInfo}>
               <div style={styles.contactItem}>
                 <Phone size={18} />
-                <span>+91-XXXXXXXXXX</span>
+                <a href="tel:+919303386187" style={{color: '#ccc', textDecoration: 'none'}}>+91-9303386187</a>
               </div>
               <div style={styles.contactItem}>
                 <Mail size={18} />
@@ -38,12 +38,22 @@ const Footer = () => {
 
           <div style={styles.section}>
             <h3 style={styles.heading}>Send Us a Query</h3>
-            <form style={styles.form}>
-              <input type="text" placeholder="Name" style={styles.input} />
-              <input type="email" placeholder="Email" style={styles.input} />
-              <input type="tel" placeholder="Mobile" style={styles.input} />
-              <textarea placeholder="Message / Query" style={styles.textarea} rows="3"></textarea>
-              <button type="submit" style={styles.button}>Submit</button>
+            <form style={styles.form} onSubmit={(e) => {
+              e.preventDefault()
+              const formData = new FormData(e.target)
+              const name = formData.get('name')
+              const email = formData.get('email')
+              const mobile = formData.get('mobile')
+              const message = formData.get('message')
+              const whatsappMessage = `*New Query from AyuTrace*%0A%0A*Name:* ${name}%0A*Email:* ${email}%0A*Mobile:* ${mobile}%0A*Message:* ${message}`
+              window.open(`https://wa.me/919303386187?text=${whatsappMessage}`, '_blank')
+              e.target.reset()
+            }}>
+              <input type="text" name="name" placeholder="Name" style={styles.input} required />
+              <input type="email" name="email" placeholder="Email" style={styles.input} required />
+              <input type="tel" name="mobile" placeholder="Mobile" style={styles.input} required />
+              <textarea name="message" placeholder="Message / Query" style={styles.textarea} rows="3" required></textarea>
+              <button type="submit" style={styles.button}>Submit via WhatsApp</button>
             </form>
           </div>
         </div>
