@@ -22,16 +22,26 @@ const Header = () => {
       boxShadow: scrolled ? '0 4px 20px rgba(0,0,0,0.15)' : '0 2px 10px rgba(0,0,0,0.1)',
     }}>
       <div style={styles.container}>
-        <Link to="/" style={styles.logo}>
+        <Link to="/" style={styles.logo} onClick={() => setIsOpen(false)}>
           <Leaf size={28} style={{ marginRight: '0.5rem' }} />
           <span style={styles.logoText}>AyuTrace</span>
         </Link>
         
-        <button style={styles.menuButton} onClick={() => setIsOpen(!isOpen)}>
+        <button 
+          style={{
+            ...styles.menuButton,
+            display: window.innerWidth <= 768 ? 'block' : 'none'
+          }} 
+          onClick={() => setIsOpen(!isOpen)}
+        >
           {isOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
 
-        <nav style={{...styles.nav, ...(isOpen ? styles.navOpen : {})}}>
+        <nav style={{
+          ...styles.nav,
+          ...(isOpen && window.innerWidth <= 768 ? styles.navOpen : {}),
+          display: window.innerWidth <= 768 ? (isOpen ? 'flex' : 'none') : 'flex'
+        }}>
           <Link to="/" style={styles.navLink} onClick={() => setIsOpen(false)}>
             <span style={styles.navLinkText}>Home</span>
           </Link>
@@ -86,14 +96,30 @@ const styles = {
     color: 'white',
     padding: '0.5rem',
     cursor: 'pointer',
+    '@media (max-width: 768px)': {
+      display: 'block',
+    },
   },
   nav: {
     display: 'flex',
     gap: '2.5rem',
     alignItems: 'center',
+    '@media (max-width: 768px)': {
+      display: 'none',
+    },
   },
   navOpen: {
     display: 'flex',
+    flexDirection: 'column',
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    right: 0,
+    background: 'rgba(46, 125, 50, 0.98)',
+    backdropFilter: 'blur(10px)',
+    padding: '1rem',
+    gap: '1rem',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
   },
   navLink: {
     color: 'white',

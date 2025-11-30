@@ -174,8 +174,8 @@ const styles = {
   },
   statsGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-    gap: '1.5rem',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',
+    gap: 'clamp(1rem, 2vw, 1.5rem)',
     marginBottom: '2rem',
   },
   statCard: {
@@ -263,19 +263,23 @@ const styles = {
   },
   tableHeader: {
     display: 'grid',
-    gridTemplateColumns: '2fr 1fr 1fr 1fr 1.5fr',
-    padding: '1rem',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
+    padding: 'clamp(0.5rem, 2vw, 1rem)',
     background: '#f5f5f5',
     fontWeight: '600',
     color: '#333',
     borderRadius: '6px 6px 0 0',
+    fontSize: 'clamp(0.8rem, 1.5vw, 1rem)',
+    gap: '0.5rem',
   },
   tableRow: {
     display: 'grid',
-    gridTemplateColumns: '2fr 1fr 1fr 1fr 1.5fr',
-    padding: '1rem',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
+    padding: 'clamp(0.5rem, 2vw, 1rem)',
     borderBottom: '1px solid #e0e0e0',
     alignItems: 'center',
+    fontSize: 'clamp(0.8rem, 1.5vw, 1rem)',
+    gap: '0.5rem',
   },
   badge: {
     display: 'inline-block',
@@ -292,8 +296,8 @@ const styles = {
   },
   formGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-    gap: '1.5rem',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 250px), 1fr))',
+    gap: 'clamp(1rem, 2vw, 1.5rem)',
   },
   inputGroup: {
     display: 'flex',
