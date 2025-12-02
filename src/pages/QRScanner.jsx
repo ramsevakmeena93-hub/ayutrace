@@ -1,9 +1,13 @@
-import React, { useState } from 'react'
-import { Camera, QrCode, CheckCircle, MapPin, Calendar, Award, Leaf, Factory, FlaskConical, Truck, ArrowRight } from 'lucide-react'
+import React, { useState, useRef, useEffect } from 'react'
+import { Camera, QrCode, CheckCircle, MapPin, Calendar, Award, Leaf, Factory, FlaskConical, Truck, ArrowRight, X } from 'lucide-react'
 
 const QRScanner = () => {
   const [scanned, setScanned] = useState(false)
   const [scanning, setScanning] = useState(false)
+  const [cameraActive, setCameraActive] = useState(false)
+  const videoRef = useRef(null)
+  const canvasRef = useRef(null)
+  const streamRef = useRef(null)
 
   const productData = {
     batchId: 'AYU-2025-001',
@@ -32,21 +36,21 @@ const QRScanner = () => {
         status: 'Completed'
       },
       {
-        stage: 'Manufacturing',
-        name: 'AyurVeda Products Ltd',
-        location: 'Maharashtra, India', 
-        date: '2025-01-22',
-        icon: Factory,
-        color: '#ff9800',
-        status: 'Completed'
-      },
-      {
         stage: 'Testing',
         name: 'Quality Labs India',
         location: 'Mumbai, India',
-        date: '2025-01-25',
+        date: '2025-01-20',
         icon: FlaskConical,
         color: '#2196f3',
+        status: 'Completed'
+      },
+      {
+        stage: 'Manufacturing',
+        name: 'AyurVeda Products Ltd',
+        location: 'Maharashtra, India', 
+        date: '2025-01-25',
+        icon: Factory,
+        color: '#ff9800',
         status: 'Completed'
       },
       {
@@ -61,36 +65,99 @@ const QRScanner = () => {
     ]
   }
 
-  const handleScan = () => {
-    setScanning(true)
-    setTimeout(() => {
-      setScanning(false)
-      setScanned(true)
-    }, 2000)
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { 
+          facingMode: 'environment', // Use back camera
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        }
+      })
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream
+        streamRef.current = stream
+        setCameraActive(true)
+        setScanning(true)
+        
+        // Simulate QR detection after 3 seconds
+        setTimeout(() => {
+          stopCamera()
+          setScanning(false)
+          setScanned(true)
+        }, 3000)
+      }
+    } catch (error) {
+      console.error('Camera access denied:', error)
+      alert('Camera access is required to scan QR codes. Please allow camera permission.')
+    }
   }
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop())
+      streamRef.current = null
+    }
+    setCameraActive(false)
+    setScanning(false)
+  }
+
+  const handleScan = () => {
+    startCamera()
+  }
+
+  useEffect(() => {
+    return () => {
+      stopCamera() // Cleanup on component unmount
+    }
+  }, [])
 
   if (!scanned) {
     return (
       <div style={styles.scanContainer}>
         <div style={styles.scanCard}>
-          <div style={styles.scanIcon}>
-            <QrCode size={80} color="#2e7d32" />
-          </div>
-          <h2 style={styles.scanTitle}>Scan Product QR Code</h2>
-          <p style={styles.scanSubtitle}>
-            Point your camera at the QR code to verify product authenticity and trace its journey
-          </p>
-          
-          {scanning ? (
-            <div style={styles.scanningAnimation}>
-              <div style={styles.scanner}></div>
-              <p style={styles.scanningText}>Scanning...</p>
+          {cameraActive ? (
+            <div style={styles.cameraContainer}>
+              <div style={styles.cameraHeader}>
+                <h3 style={styles.cameraTitle}>Point camera at QR code</h3>
+                <button style={styles.closeBtn} onClick={stopCamera}>
+                  <X size={24} />
+                </button>
+              </div>
+              <div style={styles.videoContainer}>
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  style={styles.video}
+                />
+                <div style={styles.scanOverlay}>
+                  <div style={styles.scanFrame}></div>
+                </div>
+                {scanning && (
+                  <div style={styles.scanningIndicator}>
+                    <div style={styles.scanLine}></div>
+                    <p style={styles.scanningText}>Scanning for QR code...</p>
+                  </div>
+                )}
+              </div>
             </div>
           ) : (
-            <button style={styles.scanButton} onClick={handleScan}>
-              <Camera size={24} />
-              Start Scanning
-            </button>
+            <>
+              <div style={styles.scanIcon}>
+                <QrCode size={80} color="#2e7d32" />
+              </div>
+              <h2 style={styles.scanTitle}>Scan Product QR Code</h2>
+              <p style={styles.scanSubtitle}>
+                Point your camera at the QR code to verify product authenticity and trace its journey
+              </p>
+              <button style={styles.scanButton} onClick={handleScan}>
+                <Camera size={24} />
+                Start Camera
+              </button>
+            </>
           )}
         </div>
       </div>
@@ -423,6 +490,76 @@ const styles = {
     cursor: 'pointer',
     alignSelf: 'center',
     boxShadow: '0 8px 20px rgba(46, 125, 50, 0.3)',
+  },
+  cameraContainer: {
+    width: '100%',
+    maxWidth: '500px',
+  },
+  cameraHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '1rem',
+    padding: '0 1rem',
+  },
+  cameraTitle: {
+    color: '#2e7d32',
+    fontSize: '1.2rem',
+    fontWeight: '600',
+  },
+  closeBtn: {
+    background: '#f44336',
+    color: 'white',
+    border: 'none',
+    borderRadius: '50%',
+    width: '40px',
+    height: '40px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+  },
+  videoContainer: {
+    position: 'relative',
+    borderRadius: '12px',
+    overflow: 'hidden',
+    background: '#000',
+  },
+  video: {
+    width: '100%',
+    height: '300px',
+    objectFit: 'cover',
+  },
+  scanOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  scanFrame: {
+    width: '200px',
+    height: '200px',
+    border: '3px solid #2e7d32',
+    borderRadius: '12px',
+    position: 'relative',
+  },
+  scanningIndicator: {
+    position: 'absolute',
+    bottom: '20px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    textAlign: 'center',
+  },
+  scanLine: {
+    width: '200px',
+    height: '3px',
+    background: 'linear-gradient(90deg, transparent, #2e7d32, transparent)',
+    marginBottom: '10px',
+    animation: 'scanMove 2s linear infinite',
   },
 }
 

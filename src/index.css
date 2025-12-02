@@ -103,6 +103,15 @@ input:focus, textarea:focus, select:focus {
   }
 }
 
+@keyframes scanMove {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 .scanner::after {
   content: '';
   position: absolute;
