@@ -5,6 +5,8 @@ const QRScanner = () => {
   const [scanned, setScanned] = useState(false)
   const [scanning, setScanning] = useState(false)
   const [cameraActive, setCameraActive] = useState(false)
+  const [showManualInput, setShowManualInput] = useState(false)
+  const [qrInput, setQrInput] = useState('')
   const videoRef = useRef(null)
   const canvasRef = useRef(null)
   const streamRef = useRef(null)
@@ -67,30 +69,71 @@ const QRScanner = () => {
 
   const startCamera = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
+      // Check if mediaDevices is supported
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Camera not supported on this device')
+      }
+
+      setScanning(true)
+      
+      // Try with back camera first
+      let constraints = {
         video: { 
-          facingMode: 'environment', // Use back camera
+          facingMode: 'environment',
           width: { ideal: 1280 },
           height: { ideal: 720 }
         }
-      })
+      }
+
+      let stream
+      try {
+        stream = await navigator.mediaDevices.getUserMedia(constraints)
+      } catch (backCameraError) {
+        console.log('Back camera failed, trying front camera:', backCameraError)
+        // Fallback to front camera
+        constraints = {
+          video: { 
+            facingMode: 'user',
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          }
+        }
+        stream = await navigator.mediaDevices.getUserMedia(constraints)
+      }
       
-      if (videoRef.current) {
+      if (videoRef.current && stream) {
         videoRef.current.srcObject = stream
         streamRef.current = stream
         setCameraActive(true)
-        setScanning(true)
         
-        // Simulate QR detection after 3 seconds
+        // Wait for video to load
+        videoRef.current.onloadedmetadata = () => {
+          videoRef.current.play()
+        }
+        
+        // Simulate QR detection after 4 seconds
         setTimeout(() => {
           stopCamera()
           setScanning(false)
           setScanned(true)
-        }, 3000)
+        }, 4000)
       }
     } catch (error) {
-      console.error('Camera access denied:', error)
-      alert('Camera access is required to scan QR codes. Please allow camera permission.')
+      console.error('Camera error:', error)
+      setScanning(false)
+      
+      let errorMessage = 'Camera access failed. '
+      if (error.name === 'NotAllowedError') {
+        errorMessage += 'Please allow camera permission and try again.'
+      } else if (error.name === 'NotFoundError') {
+        errorMessage += 'No camera found on this device.'
+      } else if (error.name === 'NotSupportedError') {
+        errorMessage += 'Camera not supported on this browser.'
+      } else {
+        errorMessage += 'Please check camera permissions in browser settings.'
+      }
+      
+      alert(errorMessage)
     }
   }
 
@@ -105,6 +148,14 @@ const QRScanner = () => {
 
   const handleScan = () => {
     startCamera()
+  }
+
+  const handleManualInput = (e) => {
+    e.preventDefault()
+    if (qrInput.trim()) {
+      setScanned(true)
+      setShowManualInput(false)
+    }
   }
 
   useEffect(() => {
@@ -153,10 +204,41 @@ const QRScanner = () => {
               <p style={styles.scanSubtitle}>
                 Point your camera at the QR code to verify product authenticity and trace its journey
               </p>
-              <button style={styles.scanButton} onClick={handleScan}>
-                <Camera size={24} />
-                Start Camera
-              </button>
+              <div style={styles.buttonGroup}>
+                <button style={styles.scanButton} onClick={handleScan}>
+                  <Camera size={24} />
+                  Start Camera
+                </button>
+                <button style={styles.manualButton} onClick={() => setShowManualInput(true)}>
+                  <QrCode size={24} />
+                  Enter QR Code
+                </button>
+                <button style={styles.demoButton} onClick={() => setScanned(true)}>
+                  Try Demo
+                </button>
+              </div>
+              
+              {showManualInput && (
+                <form onSubmit={handleManualInput} style={styles.manualForm}>
+                  <h3 style={styles.manualTitle}>Enter QR Code Manually</h3>
+                  <input
+                    type="text"
+                    value={qrInput}
+                    onChange={(e) => setQrInput(e.target.value)}
+                    placeholder="Paste or type QR code data"
+                    style={styles.manualInput}
+                    required
+                  />
+                  <div style={styles.manualButtons}>
+                    <button type="submit" style={styles.submitButton}>
+                      Verify Product
+                    </button>
+                    <button type="button" onClick={() => setShowManualInput(false)} style={styles.cancelButton}>
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              )}
             </>
           )}
         </div>
@@ -560,6 +642,80 @@ const styles = {
     background: 'linear-gradient(90deg, transparent, #2e7d32, transparent)',
     marginBottom: '10px',
     animation: 'scanMove 2s linear infinite',
+  },
+  buttonGroup: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+    alignItems: 'center',
+  },
+  manualButton: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.8rem',
+    padding: '1rem 2rem',
+    background: 'transparent',
+    color: '#2e7d32',
+    border: '2px solid #2e7d32',
+    borderRadius: '50px',
+    fontSize: '1.1rem',
+    fontWeight: '600',
+    cursor: 'pointer',
+  },
+  manualForm: {
+    marginTop: '2rem',
+    padding: '2rem',
+    background: '#f8f9fa',
+    borderRadius: '12px',
+    width: '100%',
+  },
+  manualTitle: {
+    color: '#2e7d32',
+    marginBottom: '1rem',
+    textAlign: 'center',
+  },
+  manualInput: {
+    width: '100%',
+    padding: '1rem',
+    border: '2px solid #e0e0e0',
+    borderRadius: '8px',
+    fontSize: '1rem',
+    marginBottom: '1rem',
+  },
+  manualButtons: {
+    display: 'flex',
+    gap: '1rem',
+    justifyContent: 'center',
+  },
+  submitButton: {
+    padding: '0.8rem 1.5rem',
+    background: '#2e7d32',
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    fontSize: '1rem',
+    fontWeight: '600',
+    cursor: 'pointer',
+  },
+  cancelButton: {
+    padding: '0.8rem 1.5rem',
+    background: '#f44336',
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    fontSize: '1rem',
+    fontWeight: '600',
+    cursor: 'pointer',
+  },
+  demoButton: {
+    padding: '0.8rem 2rem',
+    background: 'linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%)',
+    color: 'white',
+    border: 'none',
+    borderRadius: '50px',
+    fontSize: '1rem',
+    fontWeight: '600',
+    cursor: 'pointer',
   },
 }
 
