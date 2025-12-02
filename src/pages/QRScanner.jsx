@@ -117,7 +117,7 @@ const QRScanner = () => {
             <div style={styles.buttonGroup}>
               <button style={styles.scanButton} onClick={() => setScanned(true)}>
                 <QrCode size={24} />
-                � Scan dProduct
+                📱 Scan Product
               </button>
               
               <input
