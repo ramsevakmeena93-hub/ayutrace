@@ -11,23 +11,29 @@
   "categories": ["health", "business", "productivity"],
   "icons": [
     {
-      "src": "/ayutrace/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/ayutrace/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/ayutrace/icon.svg",
+      "src": "/ayutrace/icon-512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "maskable any"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/ayutrace/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "screenshots": [
     {
-      "src": "/ayutrace/icon.svg",
-      "sizes": "540x720",
-      "type": "image/svg+xml"
+      "src": "/ayutrace/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
     }
   ]
 }
