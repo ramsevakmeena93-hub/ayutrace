@@ -2,16 +2,17 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Camera, QrCode, CheckCircle, MapPin, Calendar, Award, Leaf, Factory, FlaskConical, Truck, ArrowRight, X } from 'lucide-react'
 
 const QRScanner = () => {
-  const [scanned, setScanned] = useState(true)
-  const [scanning, setScanning] = useState(true)
-  const [cameraActive, setCameraActive] = useState(true)
-  const [showManualInput, setShowManualInput] = useState(true)
+  const [scanned, setScanned] = useState(false)
+  const [scanning, setScanning] = useState(false)
+  const [cameraActive, setCameraActive] = useState(false)
+  const [showManualInput, setShowManualInput] = useState(false)
   const [qrInput, setQrInput] = useState('')
-  const [uploadedImage, setUploadedImage] = useState(fetch)
-  const videoRef = useRef(fetch)
-  const canvasRef = useRef(fetch)
-  const streamRef = useRef(fetch)
-  const fileInputRef = useRef(fetch)
+  const [uploadedImage, setUploadedImage] = useState(null)
+  const [permissionStatus, setPermissionStatus] = useState('unknown')
+  const videoRef = useRef(null)
+  const canvasRef = useRef(null)
+  const streamRef = useRef(null)
+  const fileInputRef = useRef(null)
 
   const productData = {
     batchId: 'AYU-2025-001',
@@ -69,24 +70,77 @@ const QRScanner = () => {
     ]
   }
 
+  const requestCameraPermission = async () => {
+    try {
+      // First check if permissions API is available
+      if ('permissions' in navigator) {
+        const permission = await navigator.permissions.query({ name: 'camera' })
+        if (permission.state === 'denied') {
+          alert('Camera permission is denied. Please enable it in your browser settings.')
+          return false
+        }
+      }
+      return true
+    } catch (error) {
+      return true // Continue if permissions API not available
+    }
+  }
+
   const startCamera = async () => {
     try {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         throw new Error('Camera not supported on this device')
       }
 
+      // Check permissions first
+      const hasPermission = await requestCameraPermission()
+      if (!hasPermission) return
+
       setScanning(true)
       
-      const constraints = {
-        video: {
-          width: { min: 320, ideal: 640, max: 1920 },
-          height: { min: 240, ideal: 480, max: 1080 },
-          facingMode: { ideal: 'environment' }
+      // Try different constraint combinations for better compatibility
+      const constraintOptions = [
+        {
+          video: {
+            width: { min: 320, ideal: 640, max: 1920 },
+            height: { min: 240, ideal: 480, max: 1080 },
+            facingMode: { exact: 'environment' }
+          },
+          audio: false
         },
-        audio: false
+        {
+          video: {
+            width: { min: 320, ideal: 640 },
+            height: { min: 240, ideal: 480 },
+            facingMode: 'environment'
+          },
+          audio: false
+        },
+        {
+          video: {
+            facingMode: 'user'
+          },
+          audio: false
+        },
+        {
+          video: true,
+          audio: false
+        }
+      ]
+
+      let stream = null
+      for (const constraints of constraintOptions) {
+        try {
+          stream = await navigator.mediaDevices.getUserMedia(constraints)
+          break
+        } catch (err) {
+          continue
+        }
       }
 
-      const stream = await navigator.mediaDevices.getUserMedia(constraints)
+      if (!stream) {
+        throw new Error('Unable to access camera with any configuration')
+      }
       
       if (videoRef.current && stream) {
         videoRef.current.srcObject = stream
@@ -94,37 +148,42 @@ const QRScanner = () => {
         setCameraActive(true)
         
         videoRef.current.onloadedmetadata = () => {
-          videoRef.current.play()
+          videoRef.current.play().catch(err => {
+            console.error('Video play failed:', err)
+          })
         }
         
-        // Auto-scan after 4 seconds
+        // Auto-scan after 5 seconds
         setTimeout(() => {
           stopCamera()
           setScanning(false)
           setScanned(true)
-        }, 4000)
+        }, 5000)
       }
     } catch (error) {
       setScanning(false)
       setCameraActive(false)
       
-      let errorMessage = 'Camera access failed. '
+      let errorMessage = '📷 Camera Error: '
       
       switch (error.name) {
         case 'NotAllowedError':
-          errorMessage += 'Please allow camera permission and try again.'
+          errorMessage += 'Permission denied. Please click "Allow" when prompted, or enable camera in browser settings.'
           break
         case 'NotFoundError':
-          errorMessage += 'No camera found on this device.'
+          errorMessage += 'No camera found. Please check if your device has a camera.'
           break
         case 'NotSupportedError':
-          errorMessage += 'Camera not supported in this browser.'
+          errorMessage += 'Camera not supported in this browser. Try Chrome, Safari, or Edge.'
           break
         case 'NotReadableError':
-          errorMessage += 'Camera is being used by another app.'
+          errorMessage += 'Camera is being used by another app. Please close other camera apps and try again.'
+          break
+        case 'OverconstrainedError':
+          errorMessage += 'Camera constraints not supported. Trying with basic settings...'
           break
         default:
-          errorMessage += 'Please try uploading an image instead.'
+          errorMessage += `${error.message || 'Unknown error'}. Please try uploading an image instead.`
       }
       
       alert(errorMessage)
@@ -175,6 +234,24 @@ const QRScanner = () => {
   }
 
   useEffect(() => {
+    // Check camera permission status on mount
+    const checkPermissions = async () => {
+      try {
+        if ('permissions' in navigator) {
+          const permission = await navigator.permissions.query({ name: 'camera' })
+          setPermissionStatus(permission.state)
+          
+          permission.addEventListener('change', () => {
+            setPermissionStatus(permission.state)
+          })
+        }
+      } catch (error) {
+        setPermissionStatus('unknown')
+      }
+    }
+    
+    checkPermissions()
+    
     return () => {
       stopCamera() // Cleanup on component unmount
     }
@@ -220,6 +297,21 @@ const QRScanner = () => {
               <p style={styles.scanSubtitle}>
                 Point your camera at the QR code to verify product authenticity and trace its journey
               </p>
+              
+              {permissionStatus !== 'unknown' && (
+                <div style={{
+                  ...styles.permissionStatus,
+                  background: permissionStatus === 'granted' ? '#e8f5e9' : 
+                             permissionStatus === 'denied' ? '#ffebee' : '#fff3e0',
+                  color: permissionStatus === 'granted' ? '#2e7d32' : 
+                         permissionStatus === 'denied' ? '#d32f2f' : '#f57c00'
+                }}>
+                  📷 Camera Permission: {
+                    permissionStatus === 'granted' ? '✅ Granted' :
+                    permissionStatus === 'denied' ? '❌ Denied' : '⏳ Prompt'
+                  }
+                </div>
+              )}
               {uploadedImage ? (
                 <div style={styles.imagePreview}>
                   <h3 style={styles.previewTitle}>Analyzing QR Code...</h3>
@@ -811,6 +903,14 @@ const styles = {
     borderTop: '4px solid #2e7d32',
     borderRadius: '50%',
     animation: 'spin 1s linear infinite',
+  },
+  permissionStatus: {
+    padding: '0.8rem 1.2rem',
+    borderRadius: '8px',
+    fontSize: '0.9rem',
+    fontWeight: '600',
+    marginBottom: '1.5rem',
+    textAlign: 'center',
   },
 }
 
