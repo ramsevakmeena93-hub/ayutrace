@@ -1,10 +1,9 @@
 name: Build Android APK
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 0'
 
 jobs:
   build:
@@ -57,31 +56,8 @@ jobs:
           path: android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 30
       
-      - name: Create Release (Optional)
-        if: github.ref == 'refs/heads/main'
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: v1.0.${{ github.run_number }}
-          name: AyuTrace v1.0.${{ github.run_number }}
-          body: |
-            ## AyuTrace Android APK
-            
-            ### What's New
-            - Blockchain traceability for Ayurvedic herbs
-            - Multi-stakeholder platform
-            - QR code scanning
-            - 3D supply chain visualization
-            
-            ### Installation
-            1. Download the APK file below
-            2. Enable "Install from Unknown Sources" on your Android device
-            3. Install the APK
-            4. Open AyuTrace app
-            
-            ### Note
-            This is a debug build for testing purposes.
-          files: android/app/build/outputs/apk/debug/app-debug.apk
-          draft: false
-          prerelease: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: APK Build Complete
+        run: |
+          echo "✅ APK built successfully!"
+          echo "📦 Download from Actions > Artifacts"
+          echo "📱 File: ayutrace-debug-apk"

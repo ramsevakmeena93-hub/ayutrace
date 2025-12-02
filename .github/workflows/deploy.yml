@@ -30,10 +30,14 @@ jobs:
       
       - name: Copy public files
         run: |
-          cp public/404.html dist/404.html
-          cp public/manifest.json dist/manifest.json
-          cp public/sw.js dist/sw.js
-          cp public/icon.svg dist/icon.svg
+          cp public/404.html dist/404.html || true
+          cp public/manifest.json dist/manifest.json || true
+          cp public/sw.js dist/sw.js || true
+          cp public/icon.svg dist/icon.svg || true
+          cp public/icon-192.png dist/icon-192.png || true
+          cp public/icon-512.png dist/icon-512.png 2>/dev/null || echo "icon-512.png not found, skipping"
+          cp public/icon-generator.html dist/icon-generator.html || true
+          cp public/ayutrace-logo.png dist/ayutrace-logo.png 2>/dev/null || echo "logo not found, skipping"
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
