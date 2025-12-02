@@ -24,8 +24,19 @@ const Header = () => {
     }}>
       <div style={styles.container}>
         <Link to="/" style={styles.logo} onClick={() => setIsOpen(false)}>
-          <Leaf size={28} style={{ marginRight: '0.5rem' }} />
-          <span style={styles.logoText}>AyuTrace</span>
+          <img 
+            src="/ayutrace-logo.png" 
+            alt="AyuTrace Logo" 
+            style={styles.logoImage}
+            onError={(e) => {
+              e.target.style.display = 'none'
+              e.target.nextSibling.style.display = 'flex'
+            }}
+          />
+          <div style={styles.logoFallback}>
+            <Leaf size={28} style={{ marginRight: '0.5rem' }} />
+            <span style={styles.logoText}>AyuTrace</span>
+          </div>
         </Link>
         
         <button 
@@ -92,6 +103,15 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     transition: 'transform 0.3s ease',
+  },
+  logoImage: {
+    height: '50px',
+    width: 'auto',
+    objectFit: 'contain',
+  },
+  logoFallback: {
+    display: 'none',
+    alignItems: 'center',
   },
   logoText: {
     fontSize: '1.8rem',
