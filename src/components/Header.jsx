@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { Menu, X, Leaf } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
+import { Menu, X, Leaf, QrCode, Scan } from 'lucide-react'
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const navigate = useNavigate()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -37,24 +38,32 @@ const Header = () => {
           {isOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
 
-        <nav style={{
-          ...styles.nav,
-          ...(isOpen && window.innerWidth <= 768 ? styles.navOpen : {}),
-          display: window.innerWidth <= 768 ? (isOpen ? 'flex' : 'none') : 'flex'
-        }}>
-          <Link to="/" style={styles.navLink} onClick={() => setIsOpen(false)}>
-            <span style={styles.navLinkText}>Home</span>
-          </Link>
-          <a href="/#stakeholders" style={styles.navLink} onClick={() => setIsOpen(false)}>
-            <span style={styles.navLinkText}>Stakeholders</span>
-          </a>
-          <Link to="/about" style={styles.navLink} onClick={() => setIsOpen(false)}>
-            <span style={styles.navLinkText}>About</span>
-          </Link>
-          <Link to="/contact" style={styles.navLink} onClick={() => setIsOpen(false)}>
-            <span style={styles.navLinkText}>Contact</span>
-          </Link>
-        </nav>
+        <div style={styles.rightSection}>
+          <button 
+            style={styles.scanButton}
+            onClick={() => navigate('/scan')}
+            title="Scan QR Code"
+          >
+            <QrCode size={20} />
+            <span style={styles.scanText}>Scan</span>
+          </button>
+
+          <nav style={{
+            ...styles.nav,
+            ...(isOpen && window.innerWidth <= 768 ? styles.navOpen : {}),
+            display: window.innerWidth <= 768 ? (isOpen ? 'flex' : 'none') : 'flex'
+          }}>
+            <Link to="/" style={styles.navLink} onClick={() => setIsOpen(false)}>
+              <span style={styles.navLinkText}>Home</span>
+            </Link>
+            <Link to="/about" style={styles.navLink} onClick={() => setIsOpen(false)}>
+              <span style={styles.navLinkText}>About</span>
+            </Link>
+            <Link to="/contact" style={styles.navLink} onClick={() => setIsOpen(false)}>
+              <span style={styles.navLinkText}>Contact</span>
+            </Link>
+          </nav>
+        </div>
       </div>
     </header>
   )
@@ -132,6 +141,31 @@ const styles = {
   navLinkText: {
     position: 'relative',
     zIndex: 1,
+  },
+  rightSection: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '1rem',
+  },
+  scanButton: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    background: 'rgba(255,255,255,0.2)',
+    color: 'white',
+    border: '1px solid rgba(255,255,255,0.3)',
+    padding: '0.6rem 1.2rem',
+    borderRadius: '25px',
+    fontSize: '0.9rem',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    backdropFilter: 'blur(10px)',
+  },
+  scanText: {
+    '@media (max-width: 480px)': {
+      display: 'none',
+    },
   },
 }
 

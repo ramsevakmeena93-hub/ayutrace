@@ -75,6 +75,52 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* Mobile Responsive Utilities */
+/* 3D Animations */
+@keyframes float {
+  0%, 100% {
+    transform: rotateX(5deg) translateY(0px);
+  }
+  50% {
+    transform: rotateX(5deg) translateY(-10px);
+  }
+}
+
+@keyframes pulse3D {
+  0%, 100% {
+    transform: scale(1) rotateY(0deg);
+  }
+  50% {
+    transform: scale(1.05) rotateY(5deg);
+  }
+}
+
+@keyframes scanLine {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(200px);
+  }
+}
+
+.scanner::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #2e7d32, transparent);
+  animation: scanLine 2s linear infinite;
+}
+
+/* Hover Effects */
+.card-3d:hover {
+  transform: translateY(-8px) rotateX(5deg) rotateY(5deg);
+  box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+}
+
+/* Mobile Responsive */
 @media (max-width: 768px) {
   body {
     font-size: 14px;
@@ -90,5 +136,13 @@ input:focus, textarea:focus, select:focus {
   
   h3 {
     font-size: 1.2rem !important;
+  }
+  
+  .dashboard3D {
+    perspective: none;
+  }
+  
+  .headerCard, .journeyCard {
+    transform: none !important;
   }
 }

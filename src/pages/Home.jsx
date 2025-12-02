@@ -6,11 +6,10 @@ const Home = () => {
   const navigate = useNavigate()
 
   const stakeholders = [
-    { title: 'Farmers', icon: Sprout, path: '/farmer/login', color: '#8bc34a', gradient: 'linear-gradient(135deg, #8bc34a 0%, #689f38 100%)' },
-    { title: 'Processors', icon: Factory, path: '/processor/login', color: '#ff9800', gradient: 'linear-gradient(135deg, #ff9800 0%, #f57c00 100%)' },
-    { title: 'Testing Labs', icon: FlaskConical, path: '/lab/login', color: '#2196f3', gradient: 'linear-gradient(135deg, #2196f3 0%, #1976d2 100%)' },
-    { title: 'Distributors', icon: Truck, path: '/distributor/login', color: '#9c27b0', gradient: 'linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%)' },
-    { title: 'Consumers', icon: User, path: '/consumer/scan', color: '#f44336', gradient: 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)' },
+    { title: 'Farmers', icon: Sprout, path: '/farmer/login', color: '#8bc34a', gradient: 'linear-gradient(135deg, #8bc34a 0%, #689f38 100%)', desc: 'Register herbs and track cultivation' },
+    { title: 'Manufacturers', icon: Factory, path: '/manufacturer/login', color: '#ff9800', gradient: 'linear-gradient(135deg, #ff9800 0%, #f57c00 100%)', desc: 'Process herbs and create products' },
+    { title: 'Testing Labs', icon: FlaskConical, path: '/lab/login', color: '#2196f3', gradient: 'linear-gradient(135deg, #2196f3 0%, #1976d2 100%)', desc: 'Quality testing and certification' },
+    { title: 'Distributors', icon: Truck, path: '/distributor/login', color: '#9c27b0', gradient: 'linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%)', desc: 'Supply chain and logistics' },
   ]
 
   return (
@@ -28,8 +27,8 @@ const Home = () => {
             enhances trust, and rewards ethical sourcing.
           </p>
           <div style={styles.heroButtons}>
-            <button style={styles.primaryBtn} onClick={() => navigate('/consumer/scan')}>
-              Scan Product
+            <button style={styles.primaryBtn} onClick={() => navigate('/scan')}>
+              Scan QR Code
             </button>
             <button style={styles.secondaryBtn} onClick={() => document.getElementById('stakeholders').scrollIntoView({ behavior: 'smooth' })}>
               Get Started
@@ -68,7 +67,7 @@ const Home = () => {
                 </div>
                 <h3 style={styles.cardTitle}>{stakeholder.title}</h3>
                 <p style={styles.cardDescription}>
-                  Access your {stakeholder.title.toLowerCase()} dashboard
+                  {stakeholder.desc}
                 </p>
                 <div style={{...styles.cardArrow, color: stakeholder.color}}>→</div>
               </div>
