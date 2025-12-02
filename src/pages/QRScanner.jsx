@@ -32,7 +32,7 @@ const QRScanner = () => {
         stage: 'Testing',
         name: 'Quality Labs India',
         location: 'Mumbai, India',
-        date: '2025-01-22',
+        date: '2025-01-20',
         icon: FlaskConical,
         color: '#2196f3',
         status: 'Completed'
