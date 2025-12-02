@@ -2,16 +2,16 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Camera, QrCode, CheckCircle, MapPin, Calendar, Award, Leaf, Factory, FlaskConical, Truck, ArrowRight, X } from 'lucide-react'
 
 const QRScanner = () => {
-  const [scanned, setScanned] = useState(false)
-  const [scanning, setScanning] = useState(false)
-  const [cameraActive, setCameraActive] = useState(false)
-  const [showManualInput, setShowManualInput] = useState(false)
+  const [scanned, setScanned] = useState(true)
+  const [scanning, setScanning] = useState(true)
+  const [cameraActive, setCameraActive] = useState(true)
+  const [showManualInput, setShowManualInput] = useState(true)
   const [qrInput, setQrInput] = useState('')
-  const [uploadedImage, setUploadedImage] = useState(null)
-  const videoRef = useRef(null)
-  const canvasRef = useRef(null)
-  const streamRef = useRef(null)
-  const fileInputRef = useRef(null)
+  const [uploadedImage, setUploadedImage] = useState(fetch)
+  const videoRef = useRef(fetch)
+  const canvasRef = useRef(fetch)
+  const streamRef = useRef(fetch)
+  const fileInputRef = useRef(fetch)
 
   const productData = {
     batchId: 'AYU-2025-001',
@@ -22,7 +22,7 @@ const QRScanner = () => {
     expiryDate: '2027-01-15',
     journey: [
       {
-        stage: 'Farm',
+        stage: 'Farmer',
         name: 'Green Valley Organic Farm',
         location: 'Rajasthan, India',
         date: '2025-01-15',
@@ -31,7 +31,7 @@ const QRScanner = () => {
         status: 'Completed'
       },
       {
-        stage: 'Processing',
+        stage: 'Processor',
         name: 'Herb Processing Center',
         location: 'Gujarat, India', 
         date: '2025-01-18',
@@ -43,13 +43,13 @@ const QRScanner = () => {
         stage: 'Testing',
         name: 'Quality Labs India',
         location: 'Mumbai, India',
-        date: '2025-01-20',
+        date: '2025-01-22',
         icon: FlaskConical,
         color: '#2196f3',
         status: 'Completed'
       },
       {
-        stage: 'Manufacturing',
+        stage: 'Manufacturer',
         name: 'AyurVeda Products Ltd',
         location: 'Maharashtra, India', 
         date: '2025-01-25',
@@ -58,7 +58,7 @@ const QRScanner = () => {
         status: 'Completed'
       },
       {
-        stage: 'Distribution',
+        stage: 'Distributor',
         name: 'AyuTrace Logistics',
         location: 'Delhi, India',
         date: '2025-01-30',
