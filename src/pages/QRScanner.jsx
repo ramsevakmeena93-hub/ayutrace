@@ -6,7 +6,7 @@ const QRScanner = () => {
     batchId: 'AYU-2025-001',
     herbName: 'Organic Ashwagandha',
     qualityScore: 98,
-    authenticity: 'Verified',
+    authenticity: 'Verified ✓',
     harvestDate: '2025-01-15',
     expiryDate: '2027-01-15',
     journey: [
