@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 permissions:
   contents: read
   pages: write
@@ -22,8 +26,11 @@ jobs:
         with:
           node-version: '18'
       
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       
       - name: Build
         run: npm run build
