@@ -6,8 +6,9 @@ const Home = () => {
   const navigate = useNavigate()
 
   const stakeholders = [
-    { title: 'Farmers', icon: Sprout, path: '/farmer/login', color: '#8bc34a', gradient: 'linear-gradient(135deg, #8bc34a 0%, #689f38 100%)', desc: 'Register herbs and track cultivation' },
-    { title: 'Manufacturers', icon: Factory, path: '/manufacturer/login', color: '#ff9800', gradient: 'linear-gradient(135deg, #ff9800 0%, #f57c00 100%)', desc: 'Process herbs and create products' },
+    { title: 'Farmers', icon: Sprout, path: '/farmer/login', color: '#8bc34a', gradient: 'linear-gradient(135deg, #8bc34a 0%, #689f38 100%)', desc: 'Grow and harvest herbs' },
+    { title: 'Processors', icon: Factory, path: '/processor/login', color: '#ff5722', gradient: 'linear-gradient(135deg, #ff5722 0%, #d84315 100%)', desc: 'Initial herb processing' },
+    { title: 'Manufacturers', icon: Factory, path: '/manufacturer/login', color: '#ff9800', gradient: 'linear-gradient(135deg, #ff9800 0%, #f57c00 100%)', desc: 'Create final products' },
     { title: 'Testing Labs', icon: FlaskConical, path: '/lab/login', color: '#2196f3', gradient: 'linear-gradient(135deg, #2196f3 0%, #1976d2 100%)', desc: 'Quality testing and certification' },
     { title: 'Distributors', icon: Truck, path: '/distributor/login', color: '#9c27b0', gradient: 'linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%)', desc: 'Supply chain and logistics' },
   ]

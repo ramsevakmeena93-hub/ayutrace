@@ -23,10 +23,19 @@ const QRScanner = () => {
         status: 'Completed'
       },
       {
-        stage: 'Manufacturing',
-        name: 'AyurVeda Processing Unit',
+        stage: 'Processing',
+        name: 'Herb Processing Center',
         location: 'Gujarat, India', 
-        date: '2025-01-20',
+        date: '2025-01-18',
+        icon: Factory,
+        color: '#ff5722',
+        status: 'Completed'
+      },
+      {
+        stage: 'Manufacturing',
+        name: 'AyurVeda Products Ltd',
+        location: 'Maharashtra, India', 
+        date: '2025-01-22',
         icon: Factory,
         color: '#ff9800',
         status: 'Completed'

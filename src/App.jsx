@@ -5,6 +5,8 @@ import Footer from './components/Footer'
 import Home from './pages/Home'
 import FarmerLogin from './pages/Farmer/FarmerLogin'
 import FarmerDashboard from './pages/Farmer/FarmerDashboard'
+import ProcessorLogin from './pages/Processor/ProcessorLogin'
+import ProcessorDashboard from './pages/Processor/ProcessorDashboard'
 import ManufacturerLogin from './pages/Manufacturer/ManufacturerLogin'
 import ManufacturerDashboard from './pages/Manufacturer/ManufacturerDashboard'
 import LabLogin from './pages/Lab/LabLogin'
@@ -25,6 +27,8 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/farmer/login" element={<FarmerLogin />} />
             <Route path="/farmer/dashboard" element={<FarmerDashboard />} />
+            <Route path="/processor/login" element={<ProcessorLogin />} />
+            <Route path="/processor/dashboard" element={<ProcessorDashboard />} />
             <Route path="/manufacturer/login" element={<ManufacturerLogin />} />
             <Route path="/manufacturer/dashboard" element={<ManufacturerDashboard />} />
             <Route path="/lab/login" element={<LabLogin />} />
