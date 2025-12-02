@@ -6,6 +6,7 @@ const QRScanner = () => {
   const [scanning, setScanning] = useState(false)
   const [cameraActive, setCameraActive] = useState(false)
   const [showManualInput, setShowManualInput] = useState(false)
+  const [showDebug, setShowDebug] = useState(false)
   const [qrInput, setQrInput] = useState('')
   const videoRef = useRef(null)
   const canvasRef = useRef(null)
@@ -68,69 +69,81 @@ const QRScanner = () => {
   }
 
   const startCamera = async () => {
+    console.log('🎥 Starting camera...')
+    
     try {
-      // Check if mediaDevices is supported
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error('Camera not supported on this device')
+      // Check browser support
+      if (!navigator.mediaDevices) {
+        throw new Error('MediaDevices not supported')
       }
 
+      if (!navigator.mediaDevices.getUserMedia) {
+        throw new Error('getUserMedia not supported')
+      }
+
+      console.log('✅ Browser supports camera')
       setScanning(true)
       
-      // Try with back camera first
-      let constraints = {
-        video: { 
-          facingMode: 'environment',
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
-        }
+      // Simple constraints first
+      const constraints = {
+        video: {
+          width: { min: 320, ideal: 640, max: 1920 },
+          height: { min: 240, ideal: 480, max: 1080 },
+          facingMode: { ideal: 'environment' }
+        },
+        audio: false
       }
 
-      let stream
-      try {
-        stream = await navigator.mediaDevices.getUserMedia(constraints)
-      } catch (backCameraError) {
-        console.log('Back camera failed, trying front camera:', backCameraError)
-        // Fallback to front camera
-        constraints = {
-          video: { 
-            facingMode: 'user',
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          }
-        }
-        stream = await navigator.mediaDevices.getUserMedia(constraints)
-      }
+      console.log('📱 Requesting camera permission...')
+      const stream = await navigator.mediaDevices.getUserMedia(constraints)
+      console.log('✅ Camera permission granted!')
       
       if (videoRef.current && stream) {
+        console.log('📹 Setting up video stream...')
         videoRef.current.srcObject = stream
         streamRef.current = stream
         setCameraActive(true)
         
-        // Wait for video to load
+        // Ensure video plays
         videoRef.current.onloadedmetadata = () => {
-          videoRef.current.play()
+          console.log('🎬 Video metadata loaded, starting playback...')
+          videoRef.current.play().then(() => {
+            console.log('▶️ Video playing successfully!')
+          }).catch(err => {
+            console.error('❌ Video play failed:', err)
+          })
         }
         
-        // Simulate QR detection after 4 seconds
+        // Auto-scan after 5 seconds
         setTimeout(() => {
+          console.log('🔍 Auto-detecting QR code...')
           stopCamera()
           setScanning(false)
           setScanned(true)
-        }, 4000)
+        }, 5000)
       }
     } catch (error) {
-      console.error('Camera error:', error)
+      console.error('❌ Camera error:', error)
       setScanning(false)
+      setCameraActive(false)
       
-      let errorMessage = 'Camera access failed. '
-      if (error.name === 'NotAllowedError') {
-        errorMessage += 'Please allow camera permission and try again.'
-      } else if (error.name === 'NotFoundError') {
-        errorMessage += 'No camera found on this device.'
-      } else if (error.name === 'NotSupportedError') {
-        errorMessage += 'Camera not supported on this browser.'
-      } else {
-        errorMessage += 'Please check camera permissions in browser settings.'
+      let errorMessage = '📷 Camera Error: '
+      
+      switch (error.name) {
+        case 'NotAllowedError':
+          errorMessage += 'Permission denied. Please click "Allow" when prompted for camera access.'
+          break
+        case 'NotFoundError':
+          errorMessage += 'No camera found. Please check if your device has a camera.'
+          break
+        case 'NotSupportedError':
+          errorMessage += 'Camera not supported in this browser. Try Chrome or Safari.'
+          break
+        case 'NotReadableError':
+          errorMessage += 'Camera is being used by another app. Please close other camera apps.'
+          break
+        default:
+          errorMessage += `${error.message}. Try refreshing the page or use "Try Demo" instead.`
       }
       
       alert(errorMessage)
@@ -216,6 +229,31 @@ const QRScanner = () => {
                 <button style={styles.demoButton} onClick={() => setScanned(true)}>
                   Try Demo
                 </button>
+                <button style={styles.debugButton} onClick={() => setShowDebug(!showDebug)}>
+                  Debug Info
+                </button>
+              </div>
+              
+              {showDebug && (
+                <div style={styles.debugInfo}>
+                  <h4>🔧 Debug Information:</h4>
+                  <p><strong>HTTPS:</strong> {window.location.protocol === 'https:' ? '✅ Yes' : '❌ No (Required)'}</p>
+                  <p><strong>MediaDevices:</strong> {navigator.mediaDevices ? '✅ Supported' : '❌ Not supported'}</p>
+                  <p><strong>getUserMedia:</strong> {navigator.mediaDevices?.getUserMedia ? '✅ Available' : '❌ Not available'}</p>
+                  <p><strong>Browser:</strong> {navigator.userAgent.includes('Chrome') ? 'Chrome' : navigator.userAgent.includes('Safari') ? 'Safari' : navigator.userAgent.includes('Firefox') ? 'Firefox' : 'Other'}</p>
+                  <p><strong>Device:</strong> {/Mobi|Android/i.test(navigator.userAgent) ? '📱 Mobile' : '💻 Desktop'}</p>
+                  <button style={styles.testButton} onClick={() => {
+                    navigator.mediaDevices.enumerateDevices().then(devices => {
+                      const cameras = devices.filter(device => device.kind === 'videoinput')
+                      alert(`Found ${cameras.length} camera(s): ${cameras.map(c => c.label || 'Camera').join(', ')}`)
+                    }).catch(err => alert('Cannot enumerate devices: ' + err.message))
+                  }}>
+                    Test Camera Detection
+                  </button>
+                </div>
+              )}
+              
+              <div style={styles.buttonGroup}>
               </div>
               
               {showManualInput && (
@@ -715,6 +753,33 @@ const styles = {
     borderRadius: '50px',
     fontSize: '1rem',
     fontWeight: '600',
+    cursor: 'pointer',
+  },
+  debugButton: {
+    padding: '0.6rem 1.5rem',
+    background: '#607d8b',
+    color: 'white',
+    border: 'none',
+    borderRadius: '25px',
+    fontSize: '0.9rem',
+    cursor: 'pointer',
+  },
+  debugInfo: {
+    marginTop: '1.5rem',
+    padding: '1.5rem',
+    background: '#f0f0f0',
+    borderRadius: '8px',
+    textAlign: 'left',
+    fontSize: '0.9rem',
+    lineHeight: '1.6',
+  },
+  testButton: {
+    marginTop: '1rem',
+    padding: '0.5rem 1rem',
+    background: '#2196f3',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
     cursor: 'pointer',
   },
 }
