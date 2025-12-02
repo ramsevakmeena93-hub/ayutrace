@@ -6,11 +6,12 @@ const QRScanner = () => {
   const [scanning, setScanning] = useState(false)
   const [cameraActive, setCameraActive] = useState(false)
   const [showManualInput, setShowManualInput] = useState(false)
-  const [showDebug, setShowDebug] = useState(false)
   const [qrInput, setQrInput] = useState('')
+  const [uploadedImage, setUploadedImage] = useState(null)
   const videoRef = useRef(null)
   const canvasRef = useRef(null)
   const streamRef = useRef(null)
+  const fileInputRef = useRef(null)
 
   const productData = {
     batchId: 'AYU-2025-001',
@@ -69,22 +70,13 @@ const QRScanner = () => {
   }
 
   const startCamera = async () => {
-    console.log('🎥 Starting camera...')
-    
     try {
-      // Check browser support
-      if (!navigator.mediaDevices) {
-        throw new Error('MediaDevices not supported')
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Camera not supported on this device')
       }
 
-      if (!navigator.mediaDevices.getUserMedia) {
-        throw new Error('getUserMedia not supported')
-      }
-
-      console.log('✅ Browser supports camera')
       setScanning(true)
       
-      // Simple constraints first
       const constraints = {
         video: {
           width: { min: 320, ideal: 640, max: 1920 },
@@ -94,56 +86,45 @@ const QRScanner = () => {
         audio: false
       }
 
-      console.log('📱 Requesting camera permission...')
       const stream = await navigator.mediaDevices.getUserMedia(constraints)
-      console.log('✅ Camera permission granted!')
       
       if (videoRef.current && stream) {
-        console.log('📹 Setting up video stream...')
         videoRef.current.srcObject = stream
         streamRef.current = stream
         setCameraActive(true)
         
-        // Ensure video plays
         videoRef.current.onloadedmetadata = () => {
-          console.log('🎬 Video metadata loaded, starting playback...')
-          videoRef.current.play().then(() => {
-            console.log('▶️ Video playing successfully!')
-          }).catch(err => {
-            console.error('❌ Video play failed:', err)
-          })
+          videoRef.current.play()
         }
         
-        // Auto-scan after 5 seconds
+        // Auto-scan after 4 seconds
         setTimeout(() => {
-          console.log('🔍 Auto-detecting QR code...')
           stopCamera()
           setScanning(false)
           setScanned(true)
-        }, 5000)
+        }, 4000)
       }
     } catch (error) {
-      console.error('❌ Camera error:', error)
       setScanning(false)
       setCameraActive(false)
       
-      let errorMessage = '📷 Camera Error: '
+      let errorMessage = 'Camera access failed. '
       
       switch (error.name) {
         case 'NotAllowedError':
-          errorMessage += 'Permission denied. Please click "Allow" when prompted for camera access.'
+          errorMessage += 'Please allow camera permission and try again.'
           break
         case 'NotFoundError':
-          errorMessage += 'No camera found. Please check if your device has a camera.'
+          errorMessage += 'No camera found on this device.'
           break
         case 'NotSupportedError':
-          errorMessage += 'Camera not supported in this browser. Try Chrome or Safari.'
+          errorMessage += 'Camera not supported in this browser.'
           break
         case 'NotReadableError':
-          errorMessage += 'Camera is being used by another app. Please close other camera apps.'
+          errorMessage += 'Camera is being used by another app.'
           break
         default:
-          errorMessage += `${error.message}. Try refreshing the page or use "Try Demo" instead.`
+          errorMessage += 'Please try uploading an image instead.'
       }
       
       alert(errorMessage)
@@ -169,6 +150,28 @@ const QRScanner = () => {
       setScanned(true)
       setShowManualInput(false)
     }
+  }
+
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0]
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setUploadedImage(e.target.result)
+        // Simulate QR code detection from image
+        setTimeout(() => {
+          setScanned(true)
+          setUploadedImage(null)
+        }, 2000)
+      }
+      reader.readAsDataURL(file)
+    } else {
+      alert('Please select a valid image file (JPG, PNG, etc.)')
+    }
+  }
+
+  const triggerFileUpload = () => {
+    fileInputRef.current?.click()
   }
 
   useEffect(() => {
@@ -217,44 +220,45 @@ const QRScanner = () => {
               <p style={styles.scanSubtitle}>
                 Point your camera at the QR code to verify product authenticity and trace its journey
               </p>
-              <div style={styles.buttonGroup}>
-                <button style={styles.scanButton} onClick={handleScan}>
-                  <Camera size={24} />
-                  Start Camera
-                </button>
-                <button style={styles.manualButton} onClick={() => setShowManualInput(true)}>
-                  <QrCode size={24} />
-                  Enter QR Code
-                </button>
-                <button style={styles.demoButton} onClick={() => setScanned(true)}>
-                  Try Demo
-                </button>
-                <button style={styles.debugButton} onClick={() => setShowDebug(!showDebug)}>
-                  Debug Info
-                </button>
-              </div>
-              
-              {showDebug && (
-                <div style={styles.debugInfo}>
-                  <h4>🔧 Debug Information:</h4>
-                  <p><strong>HTTPS:</strong> {window.location.protocol === 'https:' ? '✅ Yes' : '❌ No (Required)'}</p>
-                  <p><strong>MediaDevices:</strong> {navigator.mediaDevices ? '✅ Supported' : '❌ Not supported'}</p>
-                  <p><strong>getUserMedia:</strong> {navigator.mediaDevices?.getUserMedia ? '✅ Available' : '❌ Not available'}</p>
-                  <p><strong>Browser:</strong> {navigator.userAgent.includes('Chrome') ? 'Chrome' : navigator.userAgent.includes('Safari') ? 'Safari' : navigator.userAgent.includes('Firefox') ? 'Firefox' : 'Other'}</p>
-                  <p><strong>Device:</strong> {/Mobi|Android/i.test(navigator.userAgent) ? '📱 Mobile' : '💻 Desktop'}</p>
-                  <button style={styles.testButton} onClick={() => {
-                    navigator.mediaDevices.enumerateDevices().then(devices => {
-                      const cameras = devices.filter(device => device.kind === 'videoinput')
-                      alert(`Found ${cameras.length} camera(s): ${cameras.map(c => c.label || 'Camera').join(', ')}`)
-                    }).catch(err => alert('Cannot enumerate devices: ' + err.message))
-                  }}>
-                    Test Camera Detection
+              {uploadedImage ? (
+                <div style={styles.imagePreview}>
+                  <h3 style={styles.previewTitle}>Analyzing QR Code...</h3>
+                  <img src={uploadedImage} alt="Uploaded QR" style={styles.previewImage} />
+                  <div style={styles.analyzingIndicator}>
+                    <div style={styles.spinner}></div>
+                    <p>Scanning image for QR code...</p>
+                  </div>
+                </div>
+              ) : (
+                <div style={styles.buttonGroup}>
+                  <button style={styles.scanButton} onClick={handleScan}>
+                    <Camera size={24} />
+                    📷 Open Camera
+                  </button>
+                  
+                  <button style={styles.uploadButton} onClick={triggerFileUpload}>
+                    <QrCode size={24} />
+                    📁 Upload QR Image
+                  </button>
+                  
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    style={styles.hiddenInput}
+                    capture="environment" // This enables camera capture on mobile
+                  />
+                  
+                  <button style={styles.manualButton} onClick={() => setShowManualInput(true)}>
+                    ⌨️ Enter QR Code
+                  </button>
+                  
+                  <button style={styles.demoButton} onClick={() => setScanned(true)}>
+                    🎮 Try Demo
                   </button>
                 </div>
               )}
-              
-              <div style={styles.buttonGroup}>
-              </div>
               
               {showManualInput && (
                 <form onSubmit={handleManualInput} style={styles.manualForm}>
@@ -684,8 +688,9 @@ const styles = {
   buttonGroup: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '1rem',
+    gap: '1.2rem',
     alignItems: 'center',
+    width: '100%',
   },
   manualButton: {
     display: 'flex',
@@ -696,9 +701,11 @@ const styles = {
     color: '#2e7d32',
     border: '2px solid #2e7d32',
     borderRadius: '50px',
-    fontSize: '1.1rem',
+    fontSize: '1rem',
     fontWeight: '600',
     cursor: 'pointer',
+    minWidth: '200px',
+    justifyContent: 'center',
   },
   manualForm: {
     marginTop: '2rem',
@@ -754,33 +761,56 @@ const styles = {
     fontSize: '1rem',
     fontWeight: '600',
     cursor: 'pointer',
+    minWidth: '200px',
   },
-  debugButton: {
-    padding: '0.6rem 1.5rem',
-    background: '#607d8b',
+
+  uploadButton: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.8rem',
+    padding: '1.2rem 2.5rem',
+    background: 'linear-gradient(135deg, #ff9800 0%, #f57c00 100%)',
     color: 'white',
-    border: 'none',
-    borderRadius: '25px',
-    fontSize: '0.9rem',
+    borderRadius: '50px',
+    fontSize: '1.1rem',
+    fontWeight: '600',
     cursor: 'pointer',
+    boxShadow: '0 8px 20px rgba(255, 152, 0, 0.3)',
   },
-  debugInfo: {
-    marginTop: '1.5rem',
-    padding: '1.5rem',
-    background: '#f0f0f0',
-    borderRadius: '8px',
-    textAlign: 'left',
-    fontSize: '0.9rem',
-    lineHeight: '1.6',
+  hiddenInput: {
+    display: 'none',
   },
-  testButton: {
-    marginTop: '1rem',
-    padding: '0.5rem 1rem',
-    background: '#2196f3',
-    color: 'white',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
+  imagePreview: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '1.5rem',
+    padding: '2rem',
+  },
+  previewTitle: {
+    color: '#2e7d32',
+    fontSize: '1.3rem',
+    fontWeight: '600',
+  },
+  previewImage: {
+    maxWidth: '300px',
+    maxHeight: '300px',
+    borderRadius: '12px',
+    boxShadow: '0 8px 20px rgba(0,0,0,0.15)',
+  },
+  analyzingIndicator: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '1rem',
+  },
+  spinner: {
+    width: '40px',
+    height: '40px',
+    border: '4px solid #e0e0e0',
+    borderTop: '4px solid #2e7d32',
+    borderRadius: '50%',
+    animation: 'spin 1s linear infinite',
   },
 }
 
