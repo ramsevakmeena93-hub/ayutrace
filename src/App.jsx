@@ -19,7 +19,7 @@ import Contact from './pages/Contact'
 
 function App() {
   return (
-    <Router basename="/ayutrace">
+    <Router>
       <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <Header />
         <main style={{ flex: 1 }}>
